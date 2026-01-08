@@ -1,0 +1,197 @@
+// 프로젝트 브랜드 색상
+$mint-green: #C6E5D1;
+$mint-green-dark: #a8d5ba;
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+$white: #ffffff;
+$gray-light: #f5f5f5;
+$gray-medium: #e0e0e0;
+$gray-dark: #666;
+
+.search-page {
+  min-height: 100vh;
+  background: $gray-light;
+  padding: 30px 20px;
+
+  .loading,
+  .error-message {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: $gray-dark;
+  }
+
+  .error-message {
+    color: #f44336;
+  }
+
+  .search-container {
+    max-width: 1000px;
+    margin: 0 auto;
+
+    .search-header {
+      margin-bottom: 30px;
+
+      h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: $purple-dark;
+      }
+
+      .search-query {
+        margin: 0;
+        font-size: 16px;
+        color: $gray-dark;
+      }
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 80px 20px;
+      background: $white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+      .no-results-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+      }
+
+      h2 {
+        margin: 0 0 12px 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: $purple-dark;
+      }
+
+      p {
+        margin: 0;
+        font-size: 16px;
+        color: $gray-dark;
+      }
+    }
+
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+
+      .post-card {
+        background: $white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+
+        &:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 20px rgba(147, 126, 191, 0.2);
+          border-color: $purple-light;
+        }
+
+        .post-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+
+          .board-name {
+            display: inline-block;
+            background: $purple-light;
+            color: $white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+          }
+
+          .post-date {
+            font-size: 13px;
+            color: $gray-dark;
+          }
+        }
+
+        .post-title {
+          margin: 0 0 12px 0;
+          font-size: 20px;
+          font-weight: 700;
+          color: $purple-dark;
+          line-height: 1.4;
+        }
+
+        .post-preview {
+          margin-bottom: 16px;
+          font-size: 14px;
+          color: #555;
+          line-height: 1.6;
+          max-height: 60px;
+          overflow: hidden;
+        }
+
+        .post-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 13px;
+          color: $gray-dark;
+
+          .author {
+            font-weight: 600;
+            color: $purple-light;
+          }
+
+          .separator {
+            color: $gray-medium;
+          }
+
+          .stat {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+        }
+      }
+    }
+  }
+
+  // 반응형
+  @media (max-width: 768px) {
+    padding: 20px 12px;
+
+    .search-container {
+      .search-header {
+        h1 {
+          font-size: 24px;
+        }
+
+        .search-query {
+          font-size: 14px;
+        }
+      }
+
+      .search-results {
+        .post-card {
+          padding: 16px;
+
+          .post-title {
+            font-size: 18px;
+          }
+
+          .post-preview {
+            font-size: 13px;
+          }
+
+          .post-meta {
+            font-size: 12px;
+            flex-wrap: wrap;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.CourseDao">
+
+    <resultMap id="CourseResultMap" type="com.example.Globalin.model.Course">
+        <id property="id" column="id"/>
+        <result property="timetableId" column="timetable_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="professor" column="professor"/>
+        <result property="location" column="location"/>
+        <result property="dayOfWeek" column="day_of_week"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="color" column="color"/>
+        <result property="credits" column="credits"/>
+        <result property="memo" column="memo"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 科目追加 -->
+    <insert id="insertCourse" parameterType="com.example.Globalin.model.Course"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO courses (
+            timetable_id, course_name, professor, location,
+            day_of_week, start_time, end_time, color, credits, memo
+        ) VALUES (
+            #{timetableId}, #{courseName}, #{professor}, #{location},
+            #{dayOfWeek}, #{startTime}, #{endTime}, #{color}, #{credits}, #{memo}
+        )
+    </insert>
+
+    <!-- 科目取得 -->
+    <select id="findById" resultMap="CourseResultMap">
+        SELECT * FROM courses WHERE id = #{id}
+    </select>
+
+    <!-- 時間割の全科目取得 -->
+    <select id="findByTimetableId" resultMap="CourseResultMap">
+        SELECT * FROM courses
+        WHERE timetable_id = #{timetableId}
+        ORDER BY day_of_week, start_time
+    </select>
+
+    <!-- 科目更新 -->
+    <update id="updateCourse" parameterType="com.example.Globalin.model.Course">
+        UPDATE courses
+        SET course_name = #{courseName},
+            professor = #{professor},
+            location = #{location},
+            day_of_week = #{dayOfWeek},
+            start_time = #{startTime},
+            end_time = #{endTime},
+            color = #{color},
+            credits = #{credits},
+            memo = #{memo}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 科目削除 -->
+    <delete id="deleteCourse">
+        DELETE FROM courses WHERE id = #{id}
+    </delete>
+
+    <!-- 時間割の全科目削除 -->
+    <delete id="deleteByTimetableId">
+        DELETE FROM courses WHERE timetable_id = #{timetableId}
+    </delete>
+
+</mapper>

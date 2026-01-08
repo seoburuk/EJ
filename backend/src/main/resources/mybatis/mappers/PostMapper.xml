@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.PostDao">
+
+    <!-- Result Map -->
+    <resultMap id="PostResultMap" type="com.example.Globalin.model.Post">
+        <id property="id" column="id"/>
+        <result property="boardId" column="board_id"/>
+        <result property="authorId" column="author_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="imageCount" column="image_count"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="author" column="author"/>
+        <result property="boardName" column="board_name"/>
+    </resultMap>
+
+    <!-- Insert Post -->
+    <insert id="insertPost" parameterType="com.example.Globalin.model.Post" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO posts (board_id, author_id, title, content, is_anonymous)
+        VALUES (#{boardId}, #{authorId}, #{title}, #{content}, #{isAnonymous})
+    </insert>
+
+    <!-- JOINでIDによる検索 -->
+    <select id="findById" resultMap="PostResultMap">
+        SELECT p.*,
+               CASE WHEN p.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author,
+               b.name as board_name
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN boards b ON p.board_id = b.id
+        WHERE p.id = #{id} AND p.status = 'ACTIVE'
+    </select>
+
+    <!-- 掲示板IDによる検索 -->
+    <select id="findByBoardId" resultMap="PostResultMap">
+        SELECT p.*,
+               CASE WHEN p.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author,
+               b.name as board_name
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN boards b ON p.board_id = b.id
+        WHERE p.board_id = #{boardId} AND p.status = 'ACTIVE'
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 全件検索 -->
+    <select id="findAll" resultMap="PostResultMap">
+        SELECT p.*,
+               CASE WHEN p.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author,
+               b.name as board_name
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN boards b ON p.board_id = b.id
+        WHERE p.status = 'ACTIVE'
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- Find by Author ID -->
+    <select id="findByAuthorId" resultMap="PostResultMap">
+        SELECT p.*,
+               u.nickname as author,
+               b.name as board_name
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN boards b ON p.board_id = b.id
+        WHERE p.author_id = #{authorId} AND p.status = 'ACTIVE'
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- Update Post -->
+    <update id="updatePost" parameterType="com.example.Globalin.model.Post">
+        UPDATE posts
+        SET title = #{title},
+            content = #{content},
+            updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete Post (Soft Delete) -->
+    <update id="deletePost">
+        UPDATE posts
+        SET status = 'DELETED'
+        WHERE id = #{id}
+    </update>
+
+    <!-- Increment View Count -->
+    <update id="incrementViewCount">
+        UPDATE posts
+        SET view_count = view_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <!-- Increment/Decrement Like Count -->
+    <update id="incrementLikeCount">
+        UPDATE posts
+        SET like_count = like_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="decrementLikeCount">
+        UPDATE posts
+        SET like_count = like_count - 1
+        WHERE id = #{id} AND like_count > 0
+    </update>
+
+    <!-- Increment/Decrement Comment Count -->
+    <update id="incrementCommentCount">
+        UPDATE posts
+        SET comment_count = comment_count + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="decrementCommentCount">
+        UPDATE posts
+        SET comment_count = comment_count - 1
+        WHERE id = #{id} AND comment_count > 0
+    </update>
+
+    <!-- Update Image Count -->
+    <update id="updateImageCount">
+        UPDATE posts
+        SET image_count = #{count}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Count by Board ID -->
+    <select id="countByBoardId" resultType="int">
+        SELECT COUNT(*)
+        FROM posts
+        WHERE board_id = #{boardId} AND status = 'ACTIVE'
+    </select>
+
+    <!-- 投稿検索 -->
+    <select id="searchPosts" resultMap="PostResultMap">
+        SELECT p.*,
+               CASE WHEN p.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author,
+               b.name as board_name
+        FROM posts p
+        LEFT JOIN users u ON p.author_id = u.id
+        LEFT JOIN boards b ON p.board_id = b.id
+        WHERE p.status = 'ACTIVE'
+          AND (p.title LIKE CONCAT('%', #{keyword}, '%')
+           OR p.content LIKE CONCAT('%', #{keyword}, '%'))
+        ORDER BY p.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- Count All Posts -->
+    <select id="countAllPosts" resultType="int">
+        SELECT COUNT(*)
+        FROM posts
+        WHERE status = 'ACTIVE'
+    </select>
+
+</mapper>

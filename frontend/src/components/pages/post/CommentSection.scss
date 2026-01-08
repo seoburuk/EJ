@@ -1,0 +1,318 @@
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+
+.comment-section {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e0e0e0;
+
+  .comment-title {
+    font-size: 1.4rem;
+    color: $purple-dark;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+
+  .comment-form {
+    margin-bottom: 2rem;
+
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $purple-light;
+      }
+    }
+
+    .comment-form-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.75rem;
+
+      .anonymous-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        color: #666;
+
+        input[type="checkbox"] {
+          cursor: pointer;
+        }
+      }
+
+      .submit-button {
+        padding: 0.75rem 1.5rem;
+        background: $purple-light;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: $purple-dark;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  .comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .comment-item {
+    padding: 1.25rem;
+    background: #f8f8f8;
+    border-radius: 10px;
+    border-left: 3px solid $purple-light;
+
+    &.reply {
+      margin-left: 3rem;
+      margin-top: 1rem;
+      background: #fff;
+      border-left-color: $orange;
+    }
+
+    .comment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+
+      .comment-author {
+        font-weight: 600;
+        color: $purple-dark;
+
+        &.author-link {
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            color: $purple-light;
+            text-decoration: underline;
+          }
+        }
+      }
+
+      .comment-date {
+        font-size: 0.85rem;
+        color: #999;
+      }
+    }
+
+    .comment-content {
+      color: #333;
+      line-height: 1.6;
+      margin-bottom: 0.75rem;
+      white-space: pre-wrap;
+    }
+
+    .comment-actions {
+      display: flex;
+      gap: 0.75rem;
+
+      button {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &.like-button {
+          background: #f0f0f0;
+          color: #999;
+          border: 1px solid #e0e0e0;
+          font-weight: 600;
+
+          &:hover {
+            background: #ffe0e0;
+            color: #ff6b6b;
+            border-color: #ffcccc;
+          }
+
+          &.liked {
+            background: #ffe0e0;
+            color: #ff6b6b;
+            border-color: #ff6b6b;
+
+            &:hover {
+              background: #ffcccc;
+            }
+          }
+        }
+
+        &.reply-button {
+          background: #e0e0e0;
+          color: #666;
+
+          &:hover {
+            background: #d0d0d0;
+          }
+        }
+
+        &.edit-button {
+          background: $orange;
+          color: white;
+
+          &:hover {
+            background: darken($orange, 10%);
+          }
+        }
+
+        &.delete-button {
+          background: #d32f2f;
+          color: white;
+
+          &:hover {
+            background: darken(#d32f2f, 10%);
+          }
+        }
+      }
+    }
+
+    .comment-edit-form {
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-family: inherit;
+        resize: vertical;
+        margin-bottom: 0.5rem;
+
+        &:focus {
+          outline: none;
+          border-color: $purple-light;
+        }
+      }
+
+      .edit-actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 5px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &.save-button {
+            background: $purple-light;
+            color: white;
+
+            &:hover {
+              background: $purple-dark;
+            }
+          }
+
+          &.cancel-button {
+            background: #e0e0e0;
+            color: #666;
+
+            &:hover {
+              background: #d0d0d0;
+            }
+          }
+        }
+      }
+    }
+
+    .reply-form {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: white;
+      border-radius: 8px;
+
+      textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        resize: vertical;
+        margin-bottom: 0.5rem;
+
+        &:focus {
+          outline: none;
+          border-color: $purple-light;
+        }
+      }
+
+      .reply-form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .anonymous-checkbox {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          color: #666;
+          font-size: 0.9rem;
+
+          input[type="checkbox"] {
+            cursor: pointer;
+          }
+        }
+
+        button {
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 5px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &.submit-button {
+            background: $purple-light;
+            color: white;
+
+            &:hover {
+              background: $purple-dark;
+            }
+          }
+
+          &.cancel-button {
+            background: #e0e0e0;
+            color: #666;
+            margin-left: 0.5rem;
+
+            &:hover {
+              background: #d0d0d0;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .comment-section {
+    .comment-item.reply {
+      margin-left: 1.5rem;
+    }
+  }
+}

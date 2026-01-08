@@ -1,0 +1,290 @@
+package com.example.Globalin.controller;
+
+import com.example.Globalin.dto.request.LoginRequest;
+import com.example.Globalin.dto.request.RegisterRequest;
+import com.example.Globalin.dto.response.LoginResponse;
+import com.example.Globalin.dto.response.RegisterResponse;
+import com.example.Globalin.service.AuthService;
+import com.example.Globalin.service.EmailVerificationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpSession;
+
+@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+public class AuthController {
+
+    @Autowired
+    private AuthService authService;
+
+    @Autowired
+    private EmailVerificationService emailVerificationService;
+
+    @PostMapping("/register")
+    public ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest request) {
+        RegisterResponse response = authService.register(request);
+
+        if (response.isSuccess()) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request, HttpSession session) {
+        LoginResponse response = authService.login(request);
+
+        if (response.isSuccess()) {
+            // 세션에 사용자 정보 저장
+            System.out.println("Login - Session ID: " + session.getId());
+            System.out.println("Login - Setting userId: " + response.getUserId());
+            session.setAttribute("userId", response.getUserId());
+            session.setAttribute("username", response.getUsername());
+            session.setAttribute("nickname", response.getNickname());
+            System.out.println("Login - userId after set: " + session.getAttribute("userId"));
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok().body("{\"success\": true, \"message\": \"로그아웃되었습니다.\"}");
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<?> checkSession(HttpSession session) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId != null) {
+            LoginResponse response = new LoginResponse(true, "로그인 상태입니다.");
+            response.setUserId(userId);
+            response.setUsername((String) session.getAttribute("username"));
+            response.setNickname((String) session.getAttribute("nickname"));
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.ok(new LoginResponse(false, "로그인되지 않음"));
+        }
+    }
+
+    @PostMapping("/find-username")
+    public ResponseEntity<?> findUsername(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            if (email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("success", false, "message", "이메일을 입력해주세요.")
+                );
+            }
+
+            String username = authService.findUsernameByEmail(email);
+            if (username != null) {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", true,
+                    "message", "아이디를 찾았습니다.",
+                    "username", username
+                ));
+            } else {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", false,
+                    "message", "해당 이메일로 등록된 계정이 없습니다."
+                ));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of("success", false, "message", "아이디 찾기 중 오류가 발생했습니다.")
+            );
+        }
+    }
+
+    @PostMapping("/send-verification-code")
+    public ResponseEntity<?> sendVerificationCode(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String username = request.get("username");
+
+            if (email == null || email.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("success", false, "message", "이메일을 입력해주세요.")
+                );
+            }
+
+            if (username == null || username.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("success", false, "message", "아이디를 입력해주세요.")
+                );
+            }
+
+            // 이메일과 아이디가 일치하는지 확인
+            boolean isValid = authService.verifyEmailAndUsername(email, username);
+            if (!isValid) {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", false,
+                    "message", "이메일과 아이디가 일치하지 않습니다."
+                ));
+            }
+
+            // 인증 코드 생성 및 전송
+            emailVerificationService.generateVerificationCode(email);
+
+            return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "message", "인증 코드가 이메일로 전송되었습니다. (개발 환경에서는 콘솔 로그를 확인하세요)"
+            ));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of("success", false, "message", "인증 코드 전송 중 오류가 발생했습니다.")
+            );
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String username = request.get("username");
+            String verificationCode = request.get("verificationCode");
+            String newPassword = request.get("newPassword");
+
+            if (email == null || email.trim().isEmpty() ||
+                username == null || username.trim().isEmpty() ||
+                verificationCode == null || verificationCode.trim().isEmpty() ||
+                newPassword == null || newPassword.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("success", false, "message", "모든 항목을 입력해주세요.")
+                );
+            }
+
+            if (newPassword.length() < 6) {
+                return ResponseEntity.badRequest().body(
+                    java.util.Map.of("success", false, "message", "비밀번호는 6자 이상이어야 합니다.")
+                );
+            }
+
+            // 인증 코드 검증
+            boolean isCodeValid = emailVerificationService.verifyCode(email, verificationCode);
+            if (!isCodeValid) {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", false,
+                    "message", "인증 코드가 일치하지 않거나 만료되었습니다."
+                ));
+            }
+
+            // 비밀번호 재설정
+            boolean result = authService.resetPassword(email, username, newPassword);
+            if (result) {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", true,
+                    "message", "비밀번호가 성공적으로 변경되었습니다."
+                ));
+            } else {
+                return ResponseEntity.ok(java.util.Map.of(
+                    "success", false,
+                    "message", "이메일과 아이디가 일치하지 않습니다."
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of("success", false, "message", "비밀번호 재설정 중 오류가 발생했습니다.")
+            );
+        }
+    }
+
+    @PostMapping("/send-register-verification-code")
+    public ResponseEntity<?> sendRegisterVerificationCode(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+
+            if (email == null || email.trim().isEmpty()) {
+                java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+                errorMap.put("success", false);
+                errorMap.put("message", "이메일을 입력해주세요.");
+                return ResponseEntity.badRequest().body(errorMap);
+            }
+
+            // 이메일 중복 체크
+            if (authService.isEmailExists(email)) {
+                java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+                errorMap.put("success", false);
+                errorMap.put("message", "이미 사용 중인 이메일입니다.");
+                return ResponseEntity.ok(errorMap);
+            }
+
+            // 인증 코드 생성 및 전송
+            emailVerificationService.generateVerificationCode(email);
+
+            java.util.Map<String, Object> successMap = new java.util.HashMap<>();
+            successMap.put("success", true);
+            successMap.put("message", "인증 코드가 이메일로 전송되었습니다. (개발 환경에서는 콘솔 로그를 확인하세요)");
+            return ResponseEntity.ok(successMap);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+            errorMap.put("success", false);
+            errorMap.put("message", "인증 코드 전송 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMap);
+        }
+    }
+
+    @PostMapping("/register-with-verification")
+    public ResponseEntity<?> registerWithVerification(@RequestBody java.util.Map<String, String> request) {
+        try {
+            String email = request.get("email");
+            String verificationCode = request.get("verificationCode");
+            String username = request.get("username");
+            String password = request.get("password");
+            String nickname = request.get("nickname");
+
+            if (email == null || email.trim().isEmpty() ||
+                verificationCode == null || verificationCode.trim().isEmpty() ||
+                username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                nickname == null || nickname.trim().isEmpty()) {
+                java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+                errorMap.put("success", false);
+                errorMap.put("message", "모든 항목을 입력해주세요.");
+                return ResponseEntity.badRequest().body(errorMap);
+            }
+
+            // 인증 코드 검증
+            boolean isCodeValid = emailVerificationService.verifyCode(email, verificationCode);
+            if (!isCodeValid) {
+                java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+                errorMap.put("success", false);
+                errorMap.put("message", "인증 코드가 일치하지 않거나 만료되었습니다.");
+                return ResponseEntity.ok(errorMap);
+            }
+
+            // 회원가입 처리
+            RegisterRequest registerRequest = new RegisterRequest();
+            registerRequest.setEmail(email);
+            registerRequest.setUsername(username);
+            registerRequest.setPassword(password);
+            registerRequest.setNickname(nickname);
+
+            RegisterResponse response = authService.register(registerRequest);
+
+            if (response.isSuccess()) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            java.util.Map<String, Object> errorMap = new java.util.HashMap<>();
+            errorMap.put("success", false);
+            errorMap.put("message", "회원가입 중 오류가 발생했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMap);
+        }
+    }
+}

@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # 1. MariaDB Database Service
+  db:
+    image: mariadb:10.7 # MariaDB 버전을 지정 (예: 10.7)
+    container_name: globalin-mariadb
+    environment:
+      # !! 보안을 위해 운영 환경에서는 비밀번호를 외부에 노출하지 마세요 !!
+      # 개발/테스트용 기본 설정
+      MARIADB_ROOT_PASSWORD: rootpassword # 루트 비밀번호 설정
+      MARIADB_DATABASE: globalin_db       # 사용할 데이터베이스 이름
+      MARIADB_USER: globalin_user         # 애플리케이션에서 사용할 사용자 이름
+      MARIADB_PASSWORD: userpassword      # 애플리케이션 사용자 비밀번호
+      TZ: Asia/Tokyo
+    volumes:
+      # 데이터를 영구적으로 저장하기 위한 볼륨 설정
+      - globalin-db-data:/var/lib/mysql
+    networks:
+      - globalin-network
+    restart: unless-stopped
+    # DB가 완전히 준비될 때까지 기다리는 헬스체크 (선택 사항이지만 권장)
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u$$MARIADB_USER", "-p$$MARIADB_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # 2. Backend Spring application (수정됨)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: globalin-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      # DB 서비스가 먼저 시작되도록 의존성 추가
+      db:
+        condition: service_healthy # 또는 service_started
+    environment:
+      - JAVA_OPTS=-Xmx512m -Xms256m
+      - TZ=Asia/Tokyo
+      # Spring Boot 애플리케이션이 DB에 연결하기 위한 설정 추가
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/globalin_db
+      - SPRING_DATASOURCE_USERNAME=globalin_user
+      - SPRING_DATASOURCE_PASSWORD=userpassword
+    networks:
+      - globalin-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 3. Frontend React application (변경 없음)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: globalin-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - TZ=Asia/Tokyo
+    networks:
+      - globalin-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# 4. Networks & Volumes
+networks:
+  globalin-network:
+    driver: bridge
+
+volumes:
+  # MariaDB 데이터가 컨테이너가 삭제되어도 유지되도록 명시적 볼륨 추가
+  globalin-db-data:
+    driver: local

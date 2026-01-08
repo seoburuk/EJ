@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.PostImageDao">
+
+    <resultMap id="postImageResultMap" type="com.example.Globalin.model.PostImage">
+        <id property="id" column="id"/>
+        <result property="postId" column="post_id"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="originalFilename" column="original_filename"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="displayOrder" column="display_order"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 画像挿入 -->
+    <insert id="insertImage" parameterType="com.example.Globalin.model.PostImage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO post_images (post_id, image_url, original_filename, file_size, display_order)
+        VALUES (#{postId}, #{imageUrl}, #{originalFilename}, #{fileSize}, #{displayOrder})
+    </insert>
+
+    <!-- 投稿の全画像取得 -->
+    <select id="findImagesByPostId" resultMap="postImageResultMap">
+        SELECT * FROM post_images
+        WHERE post_id = #{postId}
+        ORDER BY display_order ASC, id ASC
+    </select>
+
+    <!-- 画像削除 -->
+    <delete id="deleteImage">
+        DELETE FROM post_images
+        WHERE id = #{id}
+    </delete>
+
+    <!-- 投稿の全画像削除 -->
+    <delete id="deleteImagesByPostId">
+        DELETE FROM post_images
+        WHERE post_id = #{postId}
+    </delete>
+
+    <!-- 画像数取得 -->
+    <select id="countImagesByPostId" resultType="int">
+        SELECT COUNT(*) FROM post_images
+        WHERE post_id = #{postId}
+    </select>
+
+</mapper>

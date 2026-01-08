@@ -1,0 +1,49 @@
+// MainPage.scss
+.main-page-container {
+  display: grid;
+  grid-template-columns: 270px 1fr 300px;
+  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+
+    .left-sidebar,
+    .right-sidebar {
+      display: none; // 모바일에서 숨김
+    }
+  }
+}
+
+.board-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+
+    h3 {
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    .more-link {
+      color: #666;
+      font-size: 14px;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}

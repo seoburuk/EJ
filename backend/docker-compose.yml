@@ -1,0 +1,80 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # MariaDB - 모든 팀원이 동일한 DB 환경 사용
+  db:
+    image: mariadb:10.6
+    container_name: globalin-db
+    environment:
+      MYSQL_ROOT_PASSWORD: globalin2024
+      MYSQL_DATABASE: globalin
+      MYSQL_USER: globalin_user
+      MYSQL_PASSWORD: globalin_pass
+      TZ: Asia/Tokyo
+    ports:
+      - "3307:3306"  # 로컬 MySQL과 충돌 방지
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d  # 초기 스키마
+      - db-data:/var/lib/mysql
+    networks:
+      - globalin-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Tomcat 7 + Spring 백엔드
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: globalin-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: globalin
+      DB_USER: globalin_user
+      DB_PASSWORD: globalin_pass
+      SPRING_PROFILES_ACTIVE: docker
+    volumes:
+      - ./backend/src:/app/src  # 코드 수정 시 Hot Reload
+      - ./backend/target:/app/target
+      - maven-repo:/root/.m2  # Maven 캐시 공유
+    networks:
+      - globalin-network
+
+  # React Frontend (개발 서버)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: globalin-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      REACT_APP_API_URL: http://localhost:8080
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - /app/node_modules  # node_modules는 컨테이너 내부 것 사용
+    networks:
+      - globalin-network
+    stdin_open: true
+    tty: true
+
+volumes:
+  db-data:
+  maven-repo:
+
+networks:
+  globalin-network:
+    driver: bridge

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.UserDao">
+
+    <!-- Result Map -->
+    <resultMap id="UserResultMap" type="com.example.Globalin.model.User">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <result property="email" column="email"/>
+        <result property="nickname" column="nickname"/>
+        <result property="avatar" column="avatar"/>
+        <result property="bio" column="bio"/>
+        <result property="joinDate" column="join_date"/>
+        <result property="lastLoginDate" column="last_login_date"/>
+        <result property="status" column="status"/>
+        <result property="role" column="role"/>
+    </resultMap>
+
+    <!-- Insert User -->
+    <insert id="insertUser" parameterType="com.example.Globalin.model.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (username, password, email, nickname, avatar, join_date, status)
+        VALUES (#{username}, #{password}, #{email}, #{nickname}, #{avatar}, NOW(), 'ACTIVE')
+    </insert>
+
+    <!-- Find by ID -->
+    <select id="findById" resultMap="UserResultMap">
+        SELECT * FROM users WHERE id = #{id}
+    </select>
+
+    <!-- Find by Username -->
+    <select id="findByUsername" resultMap="UserResultMap">
+        SELECT * FROM users WHERE username = #{username}
+    </select>
+
+    <!-- Find by Email -->
+    <select id="findByEmail" resultMap="UserResultMap">
+        SELECT * FROM users WHERE email = #{email}
+    </select>
+
+    <!-- Update User -->
+    <update id="updateUser" parameterType="com.example.Globalin.model.User">
+        UPDATE users
+        SET email = #{email},
+            nickname = #{nickname},
+            avatar = #{avatar},
+            bio = #{bio}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Update Last Login Date -->
+    <update id="updateLastLoginDate">
+        UPDATE users
+        SET last_login_date = NOW()
+        WHERE id = #{id}
+    </update>
+
+    <!-- Delete User -->
+    <delete id="deleteUser">
+        DELETE FROM users WHERE id = #{id}
+    </delete>
+
+    <!-- Count by Username -->
+    <select id="countByUsername" resultType="int">
+        SELECT COUNT(*) FROM users WHERE username = #{username}
+    </select>
+
+    <!-- Count by Email -->
+    <select id="countByEmail" resultType="int">
+        SELECT COUNT(*) FROM users WHERE email = #{email}
+    </select>
+
+    <!-- Count All Users -->
+    <select id="countAllUsers" resultType="int">
+        SELECT COUNT(*) FROM users
+    </select>
+
+    <!-- Find All Users with Pagination -->
+    <select id="findAllUsers" resultMap="UserResultMap">
+        SELECT * FROM users
+        ORDER BY join_date DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- Update User Status -->
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <!-- Update Password -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password}
+        WHERE id = #{id}
+    </update>
+
+</mapper>

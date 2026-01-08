@@ -1,0 +1,184 @@
+// 프로젝트 브랜드 색상
+$mint-green: #C6E5D1;
+$mint-green-dark: #a8d5ba;
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+$white: #ffffff;
+$gray-light: #f5f5f5;
+$gray-medium: #e0e0e0;
+$gray-dark: #666;
+$error-red: #f44336;
+
+.profile-edit-page {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+
+  .loading,
+  .error {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: $gray-dark;
+  }
+
+  .error {
+    color: $error-red;
+  }
+
+  .edit-container {
+    background: $white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    h1 {
+      margin: 0 0 30px 0;
+      font-size: 28px;
+      font-weight: 700;
+      color: $purple-dark;
+      text-align: center;
+    }
+
+    .error-message {
+      background: lighten($error-red, 40%);
+      color: $error-red;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      text-align: center;
+      border: 1px solid lighten($error-red, 30%);
+    }
+
+    .edit-form {
+      .form-group {
+        margin-bottom: 24px;
+
+        label {
+          display: block;
+          margin-bottom: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: $purple-dark;
+        }
+
+        input,
+        textarea {
+          width: 100%;
+          padding: 12px 16px;
+          border: 2px solid $gray-medium;
+          border-radius: 8px;
+          font-size: 14px;
+          transition: all 0.3s;
+          box-sizing: border-box;
+          font-family: inherit;
+
+          &:focus {
+            outline: none;
+            border-color: $purple-light;
+            box-shadow: 0 0 0 3px rgba(147, 126, 191, 0.1);
+          }
+
+          &::placeholder {
+            color: #aaa;
+          }
+        }
+
+        textarea {
+          resize: vertical;
+          min-height: 100px;
+          line-height: 1.6;
+        }
+
+        .char-count {
+          margin-top: 6px;
+          text-align: right;
+          font-size: 12px;
+          color: $gray-dark;
+        }
+
+        .avatar-preview {
+          margin-top: 12px;
+          text-align: center;
+
+          img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid $purple-light;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+        justify-content: center;
+
+        button {
+          padding: 14px 32px;
+          border: none;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s;
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+
+        .btn-save {
+          background: $purple-light;
+          color: $white;
+          min-width: 120px;
+
+          &:hover:not(:disabled) {
+            background: $purple-dark;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(147, 126, 191, 0.3);
+          }
+        }
+
+        .btn-cancel {
+          background: $gray-medium;
+          color: $gray-dark;
+
+          &:hover:not(:disabled) {
+            background: darken($gray-medium, 10%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+    }
+  }
+
+  // 반응형
+  @media (max-width: 768px) {
+    .edit-container {
+      padding: 30px 20px;
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .edit-form {
+        .form-actions {
+          flex-direction: column;
+
+          button {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}

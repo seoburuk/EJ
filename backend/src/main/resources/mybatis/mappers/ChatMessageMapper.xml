@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.ChatMessageDao">
+
+    <!-- Result Map -->
+    <resultMap id="ChatMessageResultMap" type="com.example.Globalin.model.ChatMessage">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="message" column="message"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- チャットメッセージ挿入 -->
+    <insert id="insertMessage" parameterType="com.example.Globalin.model.ChatMessage"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_messages (username, message, created_at)
+        VALUES (#{username}, #{message}, NOW())
+    </insert>
+
+    <!-- 最近のチャットメッセージ取得（limit制限） -->
+    <select id="findRecentMessages" resultMap="ChatMessageResultMap">
+        SELECT * FROM chat_messages
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 全チャットメッセージ取得 -->
+    <select id="findAllMessages" resultMap="ChatMessageResultMap">
+        SELECT * FROM chat_messages
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- 特定ID以降のメッセージ取得（リアルタイム更新用） -->
+    <select id="findMessagesAfterId" resultMap="ChatMessageResultMap">
+        SELECT * FROM chat_messages
+        WHERE id > #{lastId}
+        ORDER BY created_at ASC
+    </select>
+
+    <!-- チャットメッセージ削除（管理者用） -->
+    <delete id="deleteMessage">
+        DELETE FROM chat_messages WHERE id = #{id}
+    </delete>
+
+    <!-- 全メッセージ数取得 -->
+    <select id="countAllMessages" resultType="int">
+        SELECT COUNT(*) FROM chat_messages
+    </select>
+
+</mapper>

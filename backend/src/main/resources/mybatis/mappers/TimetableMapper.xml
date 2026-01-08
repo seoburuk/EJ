@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.TimetableDao">
+
+    <resultMap id="TimetableResultMap" type="com.example.Globalin.model.Timetable">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="semester" column="semester"/>
+        <result property="year" column="year"/>
+        <result property="name" column="name"/>
+        <result property="isDefault" column="is_default"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- 時間割作成 -->
+    <insert id="insertTimetable" parameterType="com.example.Globalin.model.Timetable"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO timetables (user_id, semester, year, name, is_default)
+        VALUES (#{userId}, #{semester}, #{year}, #{name}, #{isDefault})
+    </insert>
+
+    <!-- 時間割取得 -->
+    <select id="findById" resultMap="TimetableResultMap">
+        SELECT * FROM timetables WHERE id = #{id}
+    </select>
+
+    <!-- ユーザーの全時間割取得 -->
+    <select id="findByUserId" resultMap="TimetableResultMap">
+        SELECT * FROM timetables
+        WHERE user_id = #{userId}
+        ORDER BY is_default DESC, year DESC, semester DESC
+    </select>
+
+    <!-- デフォルト時間割取得 -->
+    <select id="findDefaultByUserId" resultMap="TimetableResultMap">
+        SELECT * FROM timetables
+        WHERE user_id = #{userId} AND is_default = TRUE
+        LIMIT 1
+    </select>
+
+    <!-- 時間割更新 -->
+    <update id="updateTimetable" parameterType="com.example.Globalin.model.Timetable">
+        UPDATE timetables
+        SET semester = #{semester},
+            year = #{year},
+            name = #{name},
+            is_default = #{isDefault}
+        WHERE id = #{id}
+    </update>
+
+    <!-- デフォルト時間割設定解除 -->
+    <update id="clearDefaultByUserId">
+        UPDATE timetables
+        SET is_default = FALSE
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 時間割削除 -->
+    <delete id="deleteTimetable">
+        DELETE FROM timetables WHERE id = #{id}
+    </delete>
+
+</mapper>

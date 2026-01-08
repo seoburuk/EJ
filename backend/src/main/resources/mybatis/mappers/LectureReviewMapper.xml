@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.LectureReviewDao">
+
+    <!-- ResultMap -->
+    <resultMap id="lectureReviewResultMap" type="com.example.Globalin.model.LectureReview">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="professor" column="professor"/>
+        <result property="difficulty" column="difficulty"/>
+        <result property="workload" column="workload"/>
+        <result property="satisfaction" column="satisfaction"/>
+        <result property="reviewText" column="review_text"/>
+        <result property="semester" column="semester"/>
+        <result property="year" column="year"/>
+        <result property="isAnonymous" column="is_anonymous"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="authorNickname" column="author_nickname"/>
+    </resultMap>
+
+    <!-- レビュー作成 -->
+    <insert id="insertReview" parameterType="com.example.Globalin.model.LectureReview"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO lecture_reviews (
+            user_id, course_name, professor, difficulty, workload, satisfaction,
+            review_text, semester, year, is_anonymous
+        ) VALUES (
+            #{userId}, #{courseName}, #{professor}, #{difficulty}, #{workload}, #{satisfaction},
+            #{reviewText}, #{semester}, #{year}, #{isAnonymous}
+        )
+    </insert>
+
+    <!-- IDでレビュー取得 -->
+    <select id="findById" parameterType="long" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.id = #{id}
+    </select>
+
+    <!-- レビュー更新 -->
+    <update id="updateReview" parameterType="com.example.Globalin.model.LectureReview">
+        UPDATE lecture_reviews
+        SET course_name = #{courseName},
+            professor = #{professor},
+            difficulty = #{difficulty},
+            workload = #{workload},
+            satisfaction = #{satisfaction},
+            review_text = #{reviewText},
+            semester = #{semester},
+            year = #{year},
+            is_anonymous = #{isAnonymous}
+        WHERE id = #{id}
+    </update>
+
+    <!-- レビュー削除 -->
+    <delete id="deleteReview" parameterType="long">
+        DELETE FROM lecture_reviews WHERE id = #{id}
+    </delete>
+
+    <!-- 講義名/教授名で検索 -->
+    <select id="searchReviews" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.course_name LIKE CONCAT('%', #{keyword}, '%')
+           OR lr.professor LIKE CONCAT('%', #{keyword}, '%')
+        ORDER BY lr.created_at DESC
+    </select>
+
+    <!-- 講義名で検索 -->
+    <select id="findByCourseName" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.course_name = #{courseName}
+        ORDER BY lr.created_at DESC
+    </select>
+
+    <!-- 教授名で検索 -->
+    <select id="findByProfessor" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.professor = #{professor}
+        ORDER BY lr.created_at DESC
+    </select>
+
+    <!-- 講義名 + 教授名で検索 -->
+    <select id="findByCourseAndProfessor" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.course_name = #{courseName}
+          AND lr.professor = #{professor}
+        ORDER BY lr.created_at DESC
+    </select>
+
+    <!-- ユーザーが作成したレビューリスト -->
+    <select id="findByUserId" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        WHERE lr.user_id = #{userId}
+        ORDER BY lr.created_at DESC
+    </select>
+
+    <!-- 講義別平均評価 -->
+    <select id="getAverageRatings" resultType="map">
+        SELECT
+            AVG(difficulty) as avgDifficulty,
+            AVG(workload) as avgWorkload,
+            AVG(satisfaction) as avgSatisfaction
+        FROM lecture_reviews
+        WHERE course_name = #{courseName}
+          AND professor = #{professor}
+    </select>
+
+    <!-- 全レビュー取得（最新順、ページング） -->
+    <select id="findAllReviews" resultMap="lectureReviewResultMap">
+        SELECT lr.*,
+               CASE
+                   WHEN lr.is_anonymous = 1 THEN '匿名'
+                   ELSE u.nickname
+               END as author_nickname
+        FROM lecture_reviews lr
+        LEFT JOIN users u ON lr.user_id = u.id
+        ORDER BY lr.created_at DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+        <if test="offset != null">
+            OFFSET #{offset}
+        </if>
+    </select>
+
+    <!-- レビュー総数 -->
+    <select id="countReviews" resultType="int">
+        SELECT COUNT(*) FROM lecture_reviews
+    </select>
+
+    <!-- 特定講義のレビュー数 -->
+    <select id="countReviewsByCourseAndProfessor" resultType="int">
+        SELECT COUNT(*)
+        FROM lecture_reviews
+        WHERE course_name = #{courseName}
+          AND professor = #{professor}
+    </select>
+
+</mapper>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.ReportDao">
+
+    <resultMap id="ReportResultMap" type="com.example.Globalin.model.Report">
+        <id property="id" column="id"/>
+        <result property="reporterId" column="reporter_id"/>
+        <result property="postId" column="post_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="reason" column="reason"/>
+        <result property="status" column="status"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="resolvedAt" column="resolved_at"/>
+        <result property="adminNote" column="admin_note"/>
+        <result property="reporterNickname" column="reporter_nickname"/>
+        <result property="postTitle" column="post_title"/>
+        <result property="reportedUserNickname" column="reported_user_nickname"/>
+    </resultMap>
+
+    <!-- 投稿報告 -->
+    <insert id="insertPostReport">
+        INSERT INTO reports (reporter_id, post_id, reason, status)
+        VALUES (#{reporterId}, #{postId}, #{reason}, 'pending')
+    </insert>
+
+    <!-- ユーザー報告 -->
+    <insert id="insertUserReport">
+        INSERT INTO reports (reporter_id, user_id, reason, status)
+        VALUES (#{reporterId}, #{userId}, #{reason}, 'pending')
+    </insert>
+
+    <!-- 報告取得 -->
+    <select id="findById" resultMap="ReportResultMap">
+        SELECT
+            r.id,
+            r.reporter_id,
+            r.post_id,
+            r.user_id,
+            r.reason,
+            r.status,
+            r.created_at,
+            r.resolved_at,
+            r.admin_note,
+            reporter.nickname AS reporter_nickname,
+            p.title AS post_title,
+            reported_user.nickname AS reported_user_nickname
+        FROM reports r
+        LEFT JOIN users reporter ON r.reporter_id = reporter.id
+        LEFT JOIN posts p ON r.post_id = p.id
+        LEFT JOIN users reported_user ON r.user_id = reported_user.id
+        WHERE r.id = #{id}
+    </select>
+
+    <!-- 全報告取得（管理者用） -->
+    <select id="findAll" resultMap="ReportResultMap">
+        SELECT
+            r.id,
+            r.reporter_id,
+            r.post_id,
+            r.user_id,
+            r.reason,
+            r.status,
+            r.created_at,
+            r.resolved_at,
+            r.admin_note,
+            reporter.nickname AS reporter_nickname,
+            p.title AS post_title,
+            reported_user.nickname AS reported_user_nickname
+        FROM reports r
+        LEFT JOIN users reporter ON r.reporter_id = reporter.id
+        LEFT JOIN posts p ON r.post_id = p.id
+        LEFT JOIN users reported_user ON r.user_id = reported_user.id
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 保留中の報告取得 -->
+    <select id="findPendingReports" resultMap="ReportResultMap">
+        SELECT
+            r.id,
+            r.reporter_id,
+            r.post_id,
+            r.user_id,
+            r.reason,
+            r.status,
+            r.created_at,
+            r.resolved_at,
+            r.admin_note,
+            reporter.nickname AS reporter_nickname,
+            p.title AS post_title,
+            reported_user.nickname AS reported_user_nickname
+        FROM reports r
+        LEFT JOIN users reporter ON r.reporter_id = reporter.id
+        LEFT JOIN posts p ON r.post_id = p.id
+        LEFT JOIN users reported_user ON r.user_id = reported_user.id
+        WHERE r.status = 'pending'
+        ORDER BY r.created_at DESC
+    </select>
+
+    <!-- 報告ステータス更新 -->
+    <update id="updateStatus">
+        UPDATE reports
+        SET status = #{status},
+            resolved_at = CURRENT_TIMESTAMP,
+            admin_note = #{adminNote}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 報告削除 -->
+    <delete id="deleteReport">
+        DELETE FROM reports WHERE id = #{id}
+    </delete>
+
+    <!-- 保留中の報告数 -->
+    <select id="countPendingReports" resultType="int">
+        SELECT COUNT(*) FROM reports WHERE status = 'pending'
+    </select>
+
+</mapper>

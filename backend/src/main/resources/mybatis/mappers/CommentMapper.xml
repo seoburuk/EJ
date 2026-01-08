@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.CommentDao">
+
+    <resultMap id="CommentResultMap" type="com.example.Globalin.model.Comment">
+        <id property="id" column="id"/>
+        <result property="postId" column="post_id"/>
+        <result property="authorId" column="author_id"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="content" column="content"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+        <result property="status" column="status"/>
+        <result property="isAnonymous" column="is_anonymous"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="author" column="author"/>
+    </resultMap>
+
+    <!-- コメント作成 -->
+    <insert id="insertComment" parameterType="com.example.Globalin.model.Comment"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO comments (post_id, author_id, parent_id, content, is_anonymous)
+        VALUES (#{postId}, #{authorId}, #{parentId}, #{content}, #{isAnonymous})
+    </insert>
+
+    <!-- コメント照会 -->
+    <select id="findById" parameterType="long" resultMap="CommentResultMap">
+        SELECT c.*,
+               CASE WHEN c.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.id = #{id} AND c.status = 'ACTIVE'
+    </select>
+
+    <!-- 投稿の全コメント照会 (返信コメント含む) -->
+    <select id="findByPostId" parameterType="long" resultMap="CommentResultMap">
+        WITH anon_users AS (
+            SELECT DISTINCT author_id,
+                   ROW_NUMBER() OVER (ORDER BY MIN(created_at)) as anon_num
+            FROM comments
+            WHERE post_id = #{postId}
+              AND is_anonymous = TRUE
+              AND status = 'ACTIVE'
+            GROUP BY author_id
+        )
+        SELECT c.*,
+               CASE
+                   WHEN c.is_anonymous = TRUE THEN
+                       CONCAT('匿名', COALESCE(au.anon_num, 1))
+                   ELSE u.nickname
+               END as author
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id
+        LEFT JOIN anon_users au ON c.author_id = au.author_id AND c.is_anonymous = TRUE
+        WHERE c.post_id = #{postId} AND c.status = 'ACTIVE'
+        ORDER BY c.parent_id IS NULL DESC, c.parent_id ASC, c.created_at ASC
+    </select>
+
+    <!-- 特定コメントの返信コメント照会 -->
+    <select id="findByParentId" parameterType="long" resultMap="CommentResultMap">
+        SELECT c.*,
+               CASE WHEN c.is_anonymous = TRUE THEN '匿名' ELSE u.nickname END as author
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id
+        WHERE c.parent_id = #{parentId} AND c.status = 'ACTIVE'
+        ORDER BY c.created_at ASC
+    </select>
+
+    <!-- コメント修正 -->
+    <update id="updateComment" parameterType="com.example.Globalin.model.Comment">
+        UPDATE comments
+        SET content = #{content},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- コメント削除 (ソフト削除) -->
+    <update id="deleteComment" parameterType="long">
+        UPDATE comments
+        SET status = 'DELETED',
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <!-- 投稿のコメント数照会 -->
+    <select id="countByPostId" parameterType="long" resultType="int">
+        SELECT COUNT(*)
+        FROM comments
+        WHERE post_id = #{postId} AND status = 'ACTIVE'
+    </select>
+
+    <!-- ユーザー別コメントリスト照会 -->
+    <select id="findByAuthorId" resultMap="CommentResultMap">
+        SELECT c.*,
+               u.nickname as author,
+               p.title as post_title
+        FROM comments c
+        LEFT JOIN users u ON c.author_id = u.id
+        LEFT JOIN posts p ON c.post_id = p.id
+        WHERE c.author_id = #{authorId} AND c.status = 'ACTIVE'
+        ORDER BY c.created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- ユーザー別コメント数照会 -->
+    <select id="countByAuthorId" resultType="int">
+        SELECT COUNT(*)
+        FROM comments
+        WHERE author_id = #{authorId} AND status = 'ACTIVE'
+    </select>
+
+    <!-- コメントいいね追加 -->
+    <insert id="insertCommentLike">
+        INSERT INTO comment_likes (comment_id, user_id)
+        VALUES (#{commentId}, #{userId})
+    </insert>
+
+    <!-- コメントいいね削除 -->
+    <delete id="deleteCommentLike">
+        DELETE FROM comment_likes
+        WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </delete>
+
+    <!-- コメントいいね有無確認 -->
+    <select id="existsCommentLike" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM comment_likes
+        WHERE comment_id = #{commentId} AND user_id = #{userId}
+    </select>
+
+    <!-- コメントいいね数照会 -->
+    <select id="getCommentLikeCount" resultType="int">
+        SELECT COUNT(*)
+        FROM comment_likes
+        WHERE comment_id = #{commentId}
+    </select>
+
+    <!-- コメントいいね数アップデート -->
+    <update id="updateCommentLikeCount">
+        UPDATE comments
+        SET like_count = (
+            SELECT COUNT(*)
+            FROM comment_likes
+            WHERE comment_id = #{commentId}
+        )
+        WHERE id = #{commentId}
+    </update>
+
+    <!-- 全コメント数照会 -->
+    <select id="countAllComments" resultType="int">
+        SELECT COUNT(*)
+        FROM comments
+        WHERE status = 'ACTIVE'
+    </select>
+
+</mapper>

@@ -1,0 +1,375 @@
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+$mint: #C6E5D1;
+
+.messages-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .loading,
+  .error-message {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1.2rem;
+    color: #666;
+  }
+
+  .error-message {
+    color: #d32f2f;
+  }
+
+  .messages-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2.5rem;
+      color: $purple-dark;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .unread-badge {
+      background: #ff4757;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  }
+
+  .messages-tabs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e0e0e0;
+
+    .tab-button {
+      padding: 1rem 2rem;
+      border: none;
+      background: transparent;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #666;
+      position: relative;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: $purple-light;
+      }
+
+      &.active {
+        color: $purple-dark;
+
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: $purple-dark;
+        }
+      }
+    }
+  }
+
+  .messages-content {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+
+    .compose-form {
+      max-width: 800px;
+      margin: 0 auto;
+
+      h2 {
+        font-size: 1.8rem;
+        color: $purple-dark;
+        margin-bottom: 2rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+
+        label {
+          display: block;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 0.5rem;
+        }
+
+        input,
+        textarea {
+          width: 100%;
+          padding: 0.875rem;
+          border: 2px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+
+          &:focus {
+            outline: none;
+            border-color: $purple-light;
+            box-shadow: 0 0 0 3px rgba(147, 126, 191, 0.1);
+          }
+        }
+
+        textarea {
+          resize: vertical;
+          font-family: inherit;
+        }
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+
+        button {
+          padding: 0.875rem 2rem;
+          border: none;
+          border-radius: 8px;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+
+        .send-btn {
+          background: linear-gradient(135deg, $purple-dark 0%, $purple-light 100%);
+          color: white;
+
+          &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 52, 97, 0.3);
+          }
+        }
+
+        .cancel-btn {
+          background: #e0e0e0;
+          color: #666;
+
+          &:hover {
+            background: #d0d0d0;
+          }
+        }
+      }
+    }
+
+    .message-detail {
+      .back-btn {
+        background: transparent;
+        border: none;
+        color: $purple-dark;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 1rem;
+        padding: 0.5rem 0;
+        transition: all 0.2s ease;
+
+        &:hover {
+          color: $purple-light;
+          transform: translateX(-5px);
+        }
+      }
+
+      .message-header {
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+
+        h2 {
+          font-size: 1.8rem;
+          color: $purple-dark;
+          margin-bottom: 0.5rem;
+        }
+
+        .message-meta {
+          display: flex;
+          gap: 2rem;
+          font-size: 0.95rem;
+          color: #666;
+
+          .sender {
+            font-weight: 600;
+          }
+        }
+      }
+
+      .message-body {
+        padding: 2rem 0;
+        line-height: 1.8;
+        font-size: 1.05rem;
+        color: #333;
+        min-height: 200px;
+      }
+
+      .message-actions {
+        display: flex;
+        justify-content: flex-end;
+        padding-top: 2rem;
+        border-top: 1px solid #e0e0e0;
+
+        .delete-btn {
+          padding: 0.75rem 1.5rem;
+          background: #d32f2f;
+          color: white;
+          border: none;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: darken(#d32f2f, 10%);
+          }
+        }
+      }
+    }
+
+    .messages-list {
+      .list-header {
+        margin-bottom: 1.5rem;
+
+        h2 {
+          font-size: 1.8rem;
+          color: $purple-dark;
+        }
+      }
+
+      .no-messages {
+        text-align: center;
+        padding: 3rem;
+        color: #999;
+        font-size: 1.1rem;
+      }
+
+      .messages-table {
+        width: 100%;
+        border-collapse: collapse;
+
+        thead {
+          background: linear-gradient(135deg, $purple-dark 0%, $purple-light 100%);
+
+          th {
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+
+            &.status-col {
+              width: 50px;
+            }
+
+            &.from-col {
+              width: 150px;
+            }
+
+            &.date-col {
+              width: 180px;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+              background: #f9f9f9;
+            }
+
+            &.unread {
+              background: rgba(147, 126, 191, 0.05);
+
+              td {
+                font-weight: 600;
+              }
+            }
+
+            td {
+              padding: 1rem;
+              font-size: 0.95rem;
+              color: #333;
+
+              &.status-col {
+                text-align: center;
+
+                .new-badge {
+                  display: inline-block;
+                  background: #ff4757;
+                  color: white;
+                  padding: 0.25rem 0.5rem;
+                  border-radius: 4px;
+                  font-size: 0.75rem;
+                  font-weight: 700;
+                }
+              }
+
+              &.title-col {
+                max-width: 400px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
+
+              &.date-col {
+                color: #666;
+                font-size: 0.9rem;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .messages-page {
+    padding: 1rem;
+
+    .messages-header h1 {
+      font-size: 2rem;
+    }
+
+    .messages-tabs {
+      .tab-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+      }
+    }
+
+    .messages-content {
+      padding: 1rem;
+
+      .messages-table {
+        thead th {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.85rem;
+        }
+
+        tbody tr td {
+          padding: 0.75rem 0.5rem;
+          font-size: 0.85rem;
+
+          &.title-col {
+            max-width: 150px;
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,251 @@
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+
+.review-write-page {
+  min-height: 100vh;
+  background: #f5f5f5;
+  padding: 2rem;
+}
+
+.write-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.write-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  h1 {
+    color: $purple-dark;
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .back-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #ddd;
+    color: #666;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+  }
+}
+
+.error-message {
+  background: #ffebee;
+  color: #c62828;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.write-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:last-of-type {
+      border-bottom: none;
+    }
+
+    h3 {
+      color: $purple-dark;
+      font-size: 1.2rem;
+      margin: 0 0 1.5rem 0;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: $purple-dark;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $purple-light;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      line-height: 1.6;
+    }
+
+    &.checkbox {
+      label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          width: auto;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .star-input {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      color: $purple-dark;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .stars-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .star {
+        font-size: 2rem;
+        color: #ddd;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        user-select: none;
+
+        &:hover,
+        &.filled {
+          color: $orange;
+        }
+
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+
+      .rating-value {
+        margin-left: 0.5rem;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: $purple-dark;
+        min-width: 30px;
+      }
+    }
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.875rem 2rem;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .cancel-btn {
+      background: #f0f0f0;
+      color: #666;
+
+      &:hover:not(:disabled) {
+        background: #e0e0e0;
+      }
+    }
+
+    .submit-btn {
+      background: $purple-light;
+      color: white;
+
+      &:hover:not(:disabled) {
+        background: $purple-dark;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(147, 126, 191, 0.3);
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .review-write-page {
+    padding: 1rem;
+  }
+
+  .write-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+  .write-form {
+    padding: 1.5rem;
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column-reverse;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  .star-input .stars-container .star {
+    font-size: 1.5rem;
+  }
+}

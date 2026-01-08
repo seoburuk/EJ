@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Globalin 프로젝트 클래스 다이어그램</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .diagram-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+            min-height: 600px;
+        }
+
+        .layer {
+            margin-bottom: 40px;
+        }
+
+        .layer-title {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .classes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .class-box {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .class-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .class-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .class-section {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .class-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            text-transform: uppercase;
+        }
+
+        .field, .method {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            padding: 4px 0;
+            color: #333;
+        }
+
+        .field::before {
+            content: "- ";
+            color: #f5576c;
+        }
+
+        .method::before {
+            content: "+ ";
+            color: #4caf50;
+        }
+
+        .type {
+            color: #764ba2;
+            font-weight: 600;
+        }
+
+        .interface {
+            border-color: #f5576c;
+        }
+
+        .interface .class-header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .classes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🎓 Globalin 프로젝트</h1>
+    <p class="subtitle">전체 클래스 다이어그램 - Spring MVC Layered Architecture</p>
+
+    <div class="controls">
+        <button class="btn btn-primary active" onclick="showLayer('all')">전체 보기</button>
+        <button class="btn btn-secondary" onclick="showLayer('model')">Model Layer</button>
+        <button class="btn btn-secondary" onclick="showLayer('dao')">DAO Layer</button>
+        <button class="btn btn-secondary" onclick="showLayer('service')">Service Layer</button>
+        <button class="btn btn-secondary" onclick="showLayer('controller')">Controller Layer</button>
+        <button class="btn btn-secondary" onclick="showLayer('dto')">DTO Layer</button>
+    </div>
+
+    <div class="diagram-container">
+        <!-- MODEL LAYER -->
+        <div class="layer" data-layer="model">
+            <div class="layer-title">📦 Model Layer (Domain Entities)</div>
+            <div class="classes-grid">
+                <!-- User -->
+                <div class="class-box">
+                    <div class="class-header">User</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">username: <span class="type">String</span></div>
+                        <div class="field">password: <span class="type">String</span></div>
+                        <div class="field">email: <span class="type">String</span></div>
+                        <div class="field">nickname: <span class="type">String</span></div>
+                        <div class="field">avatar: <span class="type">String</span></div>
+                        <div class="field">bio: <span class="type">String</span></div>
+                        <div class="field">joinDate: <span class="type">Date</span></div>
+                        <div class="field">lastLoginDate: <span class="type">Date</span></div>
+                        <div class="field">status: <span class="type">String</span></div>
+                        <div class="field">role: <span class="type">String</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Post -->
+                <div class="class-box">
+                    <div class="class-header">Post</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">title: <span class="type">String</span></div>
+                        <div class="field">content: <span class="type">String</span></div>
+                        <div class="field">authorId: <span class="type">Long</span></div>
+                        <div class="field">boardId: <span class="type">Long</span></div>
+                        <div class="field">createdAt: <span class="type">Date</span></div>
+                        <div class="field">viewCount: <span class="type">Integer</span></div>
+                        <div class="field">commentCount: <span class="type">Integer</span></div>
+                        <div class="field">likeCount: <span class="type">Integer</span></div>
+                        <div class="field">isAnonymous: <span class="type">Boolean</span></div>
+                        <div class="field">images: <span class="type">List&lt;PostImage&gt;</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- PostImage -->
+                <div class="class-box">
+                    <div class="class-header">PostImage</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">postId: <span class="type">Long</span></div>
+                        <div class="field">imageUrl: <span class="type">String</span></div>
+                        <div class="field">originalFilename: <span class="type">String</span></div>
+                        <div class="field">fileSize: <span class="type">Long</span></div>
+                        <div class="field">displayOrder: <span class="type">Integer</span></div>
+                        <div class="field">createdAt: <span class="type">Timestamp</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Comment -->
+                <div class="class-box">
+                    <div class="class-header">Comment</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">postId: <span class="type">Long</span></div>
+                        <div class="field">authorId: <span class="type">Long</span></div>
+                        <div class="field">parentId: <span class="type">Long</span></div>
+                        <div class="field">content: <span class="type">String</span></div>
+                        <div class="field">createdAt: <span class="type">Timestamp</span></div>
+                        <div class="field">status: <span class="type">String</span></div>
+                        <div class="field">isAnonymous: <span class="type">Boolean</span></div>
+                        <div class="field">likeCount: <span class="type">Integer</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Message -->
+                <div class="class-box">
+                    <div class="class-header">Message</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">senderId: <span class="type">Long</span></div>
+                        <div class="field">receiverId: <span class="type">Long</span></div>
+                        <div class="field">title: <span class="type">String</span></div>
+                        <div class="field">content: <span class="type">String</span></div>
+                        <div class="field">isRead: <span class="type">Boolean</span></div>
+                        <div class="field">createdAt: <span class="type">Timestamp</span></div>
+                        <div class="field">deletedBySender: <span class="type">Boolean</span></div>
+                        <div class="field">deletedByReceiver: <span class="type">Boolean</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Notification -->
+                <div class="class-box">
+                    <div class="class-header">Notification</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">userId: <span class="type">Long</span></div>
+                        <div class="field">type: <span class="type">String</span></div>
+                        <div class="field">relatedId: <span class="type">Long</span></div>
+                        <div class="field">actorId: <span class="type">Long</span></div>
+                        <div class="field">message: <span class="type">String</span></div>
+                        <div class="field">isRead: <span class="type">Boolean</span></div>
+                        <div class="field">createdAt: <span class="type">Date</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Board -->
+                <div class="class-box">
+                    <div class="class-header">Board</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">name: <span class="type">String</span></div>
+                        <div class="field">description: <span class="type">String</span></div>
+                        <div class="field">postCount: <span class="type">Integer</span></div>
+                        <div class="field">category: <span class="type">String</span></div>
+                        <div class="field">icon: <span class="type">String</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Timetable -->
+                <div class="class-box">
+                    <div class="class-header">Timetable</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">userId: <span class="type">Long</span></div>
+                        <div class="field">semester: <span class="type">String</span></div>
+                        <div class="field">year: <span class="type">Integer</span></div>
+                        <div class="field">name: <span class="type">String</span></div>
+                        <div class="field">isDefault: <span class="type">Boolean</span></div>
+                        <div class="field">createdAt: <span class="type">Timestamp</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- Course -->
+                <div class="class-box">
+                    <div class="class-header">Course</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">timetableId: <span class="type">Long</span></div>
+                        <div class="field">courseName: <span class="type">String</span></div>
+                        <div class="field">professor: <span class="type">String</span></div>
+                        <div class="field">location: <span class="type">String</span></div>
+                        <div class="field">dayOfWeek: <span class="type">Integer</span></div>
+                        <div class="field">startTime: <span class="type">Time</span></div>
+                        <div class="field">endTime: <span class="type">Time</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+
+                <!-- LectureReview -->
+                <div class="class-box">
+                    <div class="class-header">LectureReview</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">id: <span class="type">Long</span></div>
+                        <div class="field">userId: <span class="type">Long</span></div>
+                        <div class="field">courseName: <span class="type">String</span></div>
+                        <div class="field">professor: <span class="type">String</span></div>
+                        <div class="field">difficulty: <span class="type">Integer</span></div>
+                        <div class="field">workload: <span class="type">Integer</span></div>
+                        <div class="field">satisfaction: <span class="type">Integer</span></div>
+                        <div class="field">reviewText: <span class="type">String</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">getters/setters()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DAO LAYER -->
+        <div class="layer" data-layer="dao">
+            <div class="layer-title">💾 DAO Layer (Data Access Objects)</div>
+            <div class="classes-grid">
+                <!-- UserDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; UserDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertUser(user: User): void</div>
+                        <div class="method">findById(id: Long): User</div>
+                        <div class="method">findByUsername(username: String): User</div>
+                        <div class="method">findByEmail(email: String): User</div>
+                        <div class="method">countByUsername(username: String): int</div>
+                        <div class="method">countByEmail(email: String): int</div>
+                        <div class="method">updateLastLoginDate(id: Long): void</div>
+                        <div class="method">updatePassword(id: Long, password: String): void</div>
+                        <div class="method">updateProfile(id: Long, nickname: String, bio: String, avatar: String): void</div>
+                    </div>
+                </div>
+
+                <!-- PostDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; PostDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertPost(post: Post): void</div>
+                        <div class="method">findById(id: Long): Post</div>
+                        <div class="method">findByBoardId(boardId: Long, offset: int, limit: int): List&lt;Post&gt;</div>
+                        <div class="method">findAllPosts(offset: int, limit: int): List&lt;Post&gt;</div>
+                        <div class="method">updatePost(post: Post): void</div>
+                        <div class="method">deletePost(id: Long): void</div>
+                        <div class="method">incrementViewCount(id: Long): void</div>
+                        <div class="method">countByBoardId(boardId: Long): int</div>
+                        <div class="method">searchPosts(keyword: String, boardId: Long, offset: int, limit: int): List&lt;Post&gt;</div>
+                    </div>
+                </div>
+
+                <!-- PostImageDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; PostImageDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertImage(image: PostImage): void</div>
+                        <div class="method">findImagesByPostId(postId: Long): List&lt;PostImage&gt;</div>
+                        <div class="method">deleteImagesByPostId(postId: Long): void</div>
+                        <div class="method">deleteImage(id: Long): void</div>
+                    </div>
+                </div>
+
+                <!-- CommentDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; CommentDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertComment(comment: Comment): void</div>
+                        <div class="method">findById(id: Long): Comment</div>
+                        <div class="method">findByPostId(postId: Long): List&lt;Comment&gt;</div>
+                        <div class="method">updateComment(comment: Comment): void</div>
+                        <div class="method">deleteComment(id: Long): void</div>
+                        <div class="method">countByPostId(postId: Long): int</div>
+                    </div>
+                </div>
+
+                <!-- MessageDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; MessageDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertMessage(message: Message): void</div>
+                        <div class="method">findById(id: Long): Message</div>
+                        <div class="method">findSentMessages(userId: Long, offset: int, limit: int): List&lt;Message&gt;</div>
+                        <div class="method">findReceivedMessages(userId: Long, offset: int, limit: int): List&lt;Message&gt;</div>
+                        <div class="method">markAsRead(id: Long): void</div>
+                        <div class="method">countUnreadMessages(userId: Long): int</div>
+                    </div>
+                </div>
+
+                <!-- NotificationDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; NotificationDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertNotification(notification: Notification): void</div>
+                        <div class="method">findByUserId(userId: Long, offset: int, limit: int): List&lt;Notification&gt;</div>
+                        <div class="method">markAsRead(id: Long): void</div>
+                        <div class="method">markAllAsRead(userId: Long): void</div>
+                        <div class="method">countUnread(userId: Long): int</div>
+                        <div class="method">deleteNotification(id: Long): void</div>
+                    </div>
+                </div>
+
+                <!-- TimetableDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; TimetableDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertTimetable(timetable: Timetable): void</div>
+                        <div class="method">findById(id: Long): Timetable</div>
+                        <div class="method">findByUserId(userId: Long): List&lt;Timetable&gt;</div>
+                        <div class="method">updateTimetable(timetable: Timetable): void</div>
+                        <div class="method">deleteTimetable(id: Long): void</div>
+                    </div>
+                </div>
+
+                <!-- CourseDao -->
+                <div class="class-box interface">
+                    <div class="class-header">&lt;&lt;interface&gt;&gt; CourseDao</div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">insertCourse(course: Course): void</div>
+                        <div class="method">findById(id: Long): Course</div>
+                        <div class="method">findByTimetableId(timetableId: Long): List&lt;Course&gt;</div>
+                        <div class="method">updateCourse(course: Course): void</div>
+                        <div class="method">deleteCourse(id: Long): void</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICE LAYER -->
+        <div class="layer" data-layer="service">
+            <div class="layer-title">⚙️ Service Layer (Business Logic)</div>
+            <div class="classes-grid">
+                <!-- AuthService -->
+                <div class="class-box">
+                    <div class="class-header">AuthService</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">userDao: <span class="type">UserDao</span></div>
+                        <div class="field">passwordEncoder: <span class="type">BCryptPasswordEncoder</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">register(request: RegisterRequest): RegisterResponse</div>
+                        <div class="method">login(request: LoginRequest): LoginResponse</div>
+                        <div class="method">findUsernameByEmail(email: String): String</div>
+                        <div class="method">resetPassword(email: String, username: String, newPassword: String): boolean</div>
+                    </div>
+                </div>
+
+                <!-- PostService -->
+                <div class="class-box">
+                    <div class="class-header">PostService</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">postDao: <span class="type">PostDao</span></div>
+                        <div class="field">postImageDao: <span class="type">PostImageDao</span></div>
+                        <div class="field">notificationService: <span class="type">NotificationService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">createPost(request: CreatePostRequest, userId: Long): PostResponse</div>
+                        <div class="method">getPostById(id: Long): Post</div>
+                        <div class="method">getPostsByBoardId(boardId: Long, page: int, pageSize: int): List&lt;Post&gt;</div>
+                        <div class="method">updatePost(id: Long, request: UpdatePostRequest, userId: Long): PostResponse</div>
+                        <div class="method">deletePost(id: Long, userId: Long): PostResponse</div>
+                        <div class="method">toggleLike(postId: Long, userId: Long): boolean</div>
+                        <div class="method">searchPosts(keyword: String, boardId: Long, page: int, pageSize: int): List&lt;Post&gt;</div>
+                    </div>
+                </div>
+
+                <!-- CommentService -->
+                <div class="class-box">
+                    <div class="class-header">CommentService</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">commentDao: <span class="type">CommentDao</span></div>
+                        <div class="field">postDao: <span class="type">PostDao</span></div>
+                        <div class="field">notificationService: <span class="type">NotificationService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">createComment(request: CreateCommentRequest, userId: Long): CommentResponse</div>
+                        <div class="method">getCommentsByPostId(postId: Long): List&lt;Comment&gt;</div>
+                        <div class="method">updateComment(id: Long, request: UpdateCommentRequest, userId: Long): CommentResponse</div>
+                        <div class="method">deleteComment(id: Long, userId: Long): CommentResponse</div>
+                    </div>
+                </div>
+
+                <!-- MessageService -->
+                <div class="class-box">
+                    <div class="class-header">MessageService</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">messageDao: <span class="type">MessageDao</span></div>
+                        <div class="field">userDao: <span class="type">UserDao</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">sendMessage(senderId: Long, receiverId: Long, title: String, content: String): boolean</div>
+                        <div class="method">getSentMessages(userId: Long, page: int, pageSize: int): List&lt;Message&gt;</div>
+                        <div class="method">getReceivedMessages(userId: Long, page: int, pageSize: int): List&lt;Message&gt;</div>
+                        <div class="method">markAsRead(messageId: Long, userId: Long): boolean</div>
+                        <div class="method">getUnreadCount(userId: Long): int</div>
+                    </div>
+                </div>
+
+                <!-- NotificationService -->
+                <div class="class-box">
+                    <div class="class-header">NotificationService</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">notificationDao: <span class="type">NotificationDao</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">createNotification(userId: Long, type: String, relatedId: Long, actorId: Long, message: String): void</div>
+                        <div class="method">getNotifications(userId: Long, page: int, pageSize: int): List&lt;Notification&gt;</div>
+                        <div class="method">markAsRead(notificationId: Long, userId: Long): boolean</div>
+                        <div class="method">markAllAsRead(userId: Long): void</div>
+                        <div class="method">getUnreadCount(userId: Long): int</div>
+                    </div>
+                </div>
+
+                <!-- FileUploadService -->
+                <div class="class-box">
+                    <div class="class-header">FileUploadService</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">uploadDirectory: <span class="type">String</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">uploadFile(file: MultipartFile): String</div>
+                        <div class="method">deleteFile(filename: String): boolean</div>
+                        <div class="method">generateUniqueFilename(originalFilename: String): String</div>
+                        <div class="method">isValidImageFile(file: MultipartFile): boolean</div>
+                    </div>
+                </div>
+
+                <!-- EmailVerificationService -->
+                <div class="class-box">
+                    <div class="class-header">EmailVerificationService</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">verificationCodes: <span class="type">Map&lt;String, VerificationCode&gt;</span></div>
+                        <div class="field">CODE_LENGTH: <span class="type">int = 6</span></div>
+                        <div class="field">CODE_EXPIRY_MS: <span class="type">long = 300000</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Methods</div>
+                        <div class="method">generateVerificationCode(email: String): String</div>
+                        <div class="method">verifyCode(email: String, code: String): boolean</div>
+                        <div class="method">generateRandomCode(): String</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLLER LAYER -->
+        <div class="layer" data-layer="controller">
+            <div class="layer-title">🎮 Controller Layer (REST API)</div>
+            <div class="classes-grid">
+                <!-- AuthController -->
+                <div class="class-box">
+                    <div class="class-header">AuthController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">authService: <span class="type">AuthService</span></div>
+                        <div class="field">emailVerificationService: <span class="type">EmailVerificationService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">POST /api/auth/register</div>
+                        <div class="method">POST /api/auth/login</div>
+                        <div class="method">POST /api/auth/logout</div>
+                        <div class="method">GET /api/auth/check</div>
+                        <div class="method">POST /api/auth/find-username</div>
+                        <div class="method">POST /api/auth/send-verification-code</div>
+                        <div class="method">POST /api/auth/reset-password</div>
+                    </div>
+                </div>
+
+                <!-- PostController -->
+                <div class="class-box">
+                    <div class="class-header">PostController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">postService: <span class="type">PostService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">POST /api/posts</div>
+                        <div class="method">GET /api/posts/{id}</div>
+                        <div class="method">GET /api/posts/board/{boardId}</div>
+                        <div class="method">PUT /api/posts/{id}</div>
+                        <div class="method">DELETE /api/posts/{id}</div>
+                        <div class="method">POST /api/posts/{id}/like</div>
+                        <div class="method">GET /api/posts/search</div>
+                    </div>
+                </div>
+
+                <!-- CommentController -->
+                <div class="class-box">
+                    <div class="class-header">CommentController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">commentService: <span class="type">CommentService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">POST /api/comments</div>
+                        <div class="method">GET /api/comments/post/{postId}</div>
+                        <div class="method">PUT /api/comments/{id}</div>
+                        <div class="method">DELETE /api/comments/{id}</div>
+                    </div>
+                </div>
+
+                <!-- MessageController -->
+                <div class="class-box">
+                    <div class="class-header">MessageController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">messageService: <span class="type">MessageService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">POST /api/messages</div>
+                        <div class="method">GET /api/messages/sent</div>
+                        <div class="method">GET /api/messages/received</div>
+                        <div class="method">PUT /api/messages/{id}/read</div>
+                        <div class="method">GET /api/messages/unread/count</div>
+                    </div>
+                </div>
+
+                <!-- NotificationController -->
+                <div class="class-box">
+                    <div class="class-header">NotificationController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">notificationService: <span class="type">NotificationService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">GET /api/notifications</div>
+                        <div class="method">PUT /api/notifications/{id}/read</div>
+                        <div class="method">PUT /api/notifications/read-all</div>
+                        <div class="method">GET /api/notifications/unread/count</div>
+                        <div class="method">DELETE /api/notifications/{id}</div>
+                    </div>
+                </div>
+
+                <!-- ImageUploadController -->
+                <div class="class-box">
+                    <div class="class-header">ImageUploadController</div>
+                    <div class="class-section">
+                        <div class="section-title">Dependencies</div>
+                        <div class="field">fileUploadService: <span class="type">FileUploadService</span></div>
+                    </div>
+                    <div class="class-section">
+                        <div class="section-title">Endpoints</div>
+                        <div class="method">POST /api/upload/image</div>
+                        <div class="method">DELETE /api/upload/image</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DTO LAYER -->
+        <div class="layer" data-layer="dto">
+            <div class="layer-title">📨 DTO Layer (Data Transfer Objects)</div>
+            <div class="classes-grid">
+                <!-- RegisterRequest -->
+                <div class="class-box">
+                    <div class="class-header">RegisterRequest</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">username: <span class="type">String</span></div>
+                        <div class="field">password: <span class="type">String</span></div>
+                        <div class="field">email: <span class="type">String</span></div>
+                        <div class="field">nickname: <span class="type">String</span></div>
+                    </div>
+                </div>
+
+                <!-- LoginRequest -->
+                <div class="class-box">
+                    <div class="class-header">LoginRequest</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">username: <span class="type">String</span></div>
+                        <div class="field">password: <span class="type">String</span></div>
+                    </div>
+                </div>
+
+                <!-- RegisterResponse -->
+                <div class="class-box">
+                    <div class="class-header">RegisterResponse</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">success: <span class="type">boolean</span></div>
+                        <div class="field">message: <span class="type">String</span></div>
+                        <div class="field">userId: <span class="type">Long</span></div>
+                    </div>
+                </div>
+
+                <!-- LoginResponse -->
+                <div class="class-box">
+                    <div class="class-header">LoginResponse</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">success: <span class="type">boolean</span></div>
+                        <div class="field">message: <span class="type">String</span></div>
+                        <div class="field">userId: <span class="type">Long</span></div>
+                        <div class="field">username: <span class="type">String</span></div>
+                        <div class="field">nickname: <span class="type">String</span></div>
+                    </div>
+                </div>
+
+                <!-- CreatePostRequest -->
+                <div class="class-box">
+                    <div class="class-header">CreatePostRequest</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">boardId: <span class="type">Long</span></div>
+                        <div class="field">title: <span class="type">String</span></div>
+                        <div class="field">content: <span class="type">String</span></div>
+                        <div class="field">isAnonymous: <span class="type">Boolean</span></div>
+                        <div class="field">imageUrls: <span class="type">List&lt;String&gt;</span></div>
+                    </div>
+                </div>
+
+                <!-- PostResponse -->
+                <div class="class-box">
+                    <div class="class-header">PostResponse</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">success: <span class="type">boolean</span></div>
+                        <div class="field">message: <span class="type">String</span></div>
+                        <div class="field">postId: <span class="type">Long</span></div>
+                    </div>
+                </div>
+
+                <!-- CreateCommentRequest -->
+                <div class="class-box">
+                    <div class="class-header">CreateCommentRequest</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">postId: <span class="type">Long</span></div>
+                        <div class="field">parentId: <span class="type">Long</span></div>
+                        <div class="field">content: <span class="type">String</span></div>
+                        <div class="field">isAnonymous: <span class="type">Boolean</span></div>
+                    </div>
+                </div>
+
+                <!-- CommentResponse -->
+                <div class="class-box">
+                    <div class="class-header">CommentResponse</div>
+                    <div class="class-section">
+                        <div class="section-title">Fields</div>
+                        <div class="field">success: <span class="type">boolean</span></div>
+                        <div class="field">message: <span class="type">String</span></div>
+                        <div class="field">commentId: <span class="type">Long</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+            <span>Class (Model, Service, Controller)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+            <span>Interface (DAO)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4caf50;"></div>
+            <span>Public Method (+)</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f5576c;"></div>
+            <span>Private Field (-)</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showLayer(layerName) {
+        const layers = document.querySelectorAll('.layer');
+        const buttons = document.querySelectorAll('.btn-secondary, .btn-primary');
+
+        // Remove active class from all buttons
+        buttons.forEach(btn => {
+            btn.classList.remove('active', 'btn-primary');
+            btn.classList.add('btn-secondary');
+        });
+
+        // Add active class to clicked button
+        event.target.classList.remove('btn-secondary');
+        event.target.classList.add('btn-primary', 'active');
+
+        if (layerName === 'all') {
+            layers.forEach(layer => layer.style.display = 'block');
+        } else {
+            layers.forEach(layer => {
+                if (layer.dataset.layer === layerName) {
+                    layer.style.display = 'block';
+                } else {
+                    layer.style.display = 'none';
+                }
+            });
+        }
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.Globalin.dao.NotificationDao">
+
+    <!-- Result Map -->
+    <resultMap id="NotificationResultMap" type="com.example.Globalin.model.Notification">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="type" column="type"/>
+        <result property="relatedId" column="related_id"/>
+        <result property="actorId" column="actor_id"/>
+        <result property="actorName" column="actor_name"/>
+        <result property="message" column="message"/>
+        <result property="isRead" column="is_read"/>
+        <result property="createdAt" column="created_at"/>
+    </resultMap>
+
+    <!-- 通知作成 -->
+    <insert id="insertNotification" parameterType="com.example.Globalin.model.Notification">
+        INSERT INTO notifications (user_id, type, related_id, actor_id, actor_name, message, is_read, created_at)
+        VALUES (#{userId}, #{type}, #{relatedId}, #{actorId}, #{actorName}, #{message}, FALSE, NOW())
+    </insert>
+
+    <!-- ユーザー別通知リスト取得 -->
+    <select id="findByUserId" resultMap="NotificationResultMap">
+        SELECT * FROM notifications
+        WHERE user_id = #{userId}
+        ORDER BY created_at DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 未読通知数取得 -->
+    <select id="countUnreadByUserId" resultType="int">
+        SELECT COUNT(*) FROM notifications
+        WHERE user_id = #{userId} AND is_read = FALSE
+    </select>
+
+    <!-- 通知既読処理 -->
+    <update id="markAsRead">
+        UPDATE notifications
+        SET is_read = TRUE
+        WHERE id = #{id}
+    </update>
+
+    <!-- 全通知既読処理 -->
+    <update id="markAllAsRead">
+        UPDATE notifications
+        SET is_read = TRUE
+        WHERE user_id = #{userId} AND is_read = FALSE
+    </update>
+
+    <!-- 通知削除 -->
+    <delete id="deleteNotification">
+        DELETE FROM notifications WHERE id = #{id}
+    </delete>
+
+    <!-- 特定IDの通知取得 -->
+    <select id="findById" resultMap="NotificationResultMap">
+        SELECT * FROM notifications WHERE id = #{id}
+    </select>
+
+</mapper>

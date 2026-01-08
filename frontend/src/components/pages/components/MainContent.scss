@@ -1,0 +1,130 @@
+$purple-light: #937EBF;
+$purple-dark: #433461;
+$orange: #FE9F1A;
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+
+  .post-section {
+    margin-bottom: 25px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      padding: 12px 18px;
+      background: linear-gradient(135deg, $purple-light 0%, $purple-dark 100%);
+      color: white;
+      margin: 0;
+    }
+
+    .post-list {
+      .post-list-header {
+        display: grid;
+        grid-template-columns: 1fr 100px 70px 90px;
+        gap: 0.75rem;
+        padding: 0.65rem 1rem;
+        background: #f5f5f5;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #666;
+        border-bottom: 2px solid #e8e8e8;
+
+        div {
+          text-align: center;
+
+          &.col-title {
+            text-align: left;
+          }
+        }
+      }
+
+      .post-item {
+        display: grid;
+        grid-template-columns: 1fr 100px 70px 90px;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #e8e8e8;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #f9f9f9;
+          border-left: 3px solid $purple-light;
+          padding-left: calc(1rem - 3px);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        div {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.9rem;
+          color: #666;
+
+          &.col-title {
+            justify-content: flex-start;
+            font-weight: 500;
+            color: #333;
+            font-size: 0.95rem;
+
+            .title-text {
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+              max-width: 100%;
+            }
+
+            .comment-count {
+              margin-left: 0.5rem;
+              color: $orange;
+              font-weight: 700;
+              font-size: 0.85rem;
+              flex-shrink: 0;
+            }
+          }
+
+          &.col-author {
+            font-weight: 500;
+            color: $purple-dark;
+            font-size: 0.85rem;
+
+            &.author-link {
+              cursor: pointer;
+              transition: all 0.2s ease;
+
+              &:hover {
+                color: $purple-light;
+                text-decoration: underline;
+              }
+            }
+          }
+
+          &.col-views {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #777;
+          }
+
+          &.col-date {
+            font-size: 0.85rem;
+            color: #999;
+          }
+        }
+      }
+
+      .no-posts {
+        text-align: center;
+        padding: 2rem;
+        color: #999;
+      }
+    }
+  }
+}

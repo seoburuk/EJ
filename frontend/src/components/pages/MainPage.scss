@@ -1,0 +1,38 @@
+.main-page-container {
+  display: flex;
+  gap: 15px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+
+  &.loading,
+  &.error {
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+
+  .loading-message,
+  .error-message {
+    padding: 30px 50px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+    color: #666;
+  }
+
+  .error-message {
+    color: #e74c3c;
+    border-left: 4px solid #e74c3c;
+  }
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+
+    .left-sidebar,
+    .right-sidebar {
+      width: 100%;
+    }
+  }
+}
