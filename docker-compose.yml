@@ -16,6 +16,8 @@ services:
     volumes:
       # 데이터를 영구적으로 저장하기 위한 볼륨 설정
       - globalin-db-data:/var/lib/mysql
+      # 初期化スクリプト（他のPCでも自動的にデータベースを作成）
+      - ./docker/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - globalin-network
     restart: unless-stopped
