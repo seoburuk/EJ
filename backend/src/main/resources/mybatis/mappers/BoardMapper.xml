@@ -16,14 +16,13 @@
     <select id="findAllBoards" resultMap="BoardResultMap">
         SELECT id, name, description, post_count, category, icon
         FROM boards
-        WHERE status = 'ACTIVE'
         ORDER BY id ASC
     </select>
 
     <select id="findById" resultMap="BoardResultMap">
         SELECT id, name, description, post_count, category, icon
         FROM boards
-        WHERE id = #{id} AND status = 'ACTIVE'
+        WHERE id = #{id}
     </select>
 
 </mapper>

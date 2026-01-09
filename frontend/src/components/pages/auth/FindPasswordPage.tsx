@@ -17,6 +17,7 @@ const FindPasswordPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [displayCode, setDisplayCode] = useState(''); // テスト用：認証コードを表示
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -53,6 +54,7 @@ const FindPasswordPage: React.FC = () => {
       if (data.success) {
         alert(data.message);
         setCodeSent(true);
+        setDisplayCode(data.verificationCode || ''); // テスト用：認証コードを保存
         setStep(2);
       } else {
         alert(data.message);
@@ -172,6 +174,11 @@ const FindPasswordPage: React.FC = () => {
             <div className="info-box">
               <p><strong>メールアドレス:</strong> {formData.email}</p>
               <p><strong>ユーザー名:</strong> {formData.username}</p>
+              {displayCode && (
+                <p style={{ color: '#e74c3c', fontWeight: 'bold', marginTop: '10px' }}>
+                  <strong>テスト用認証コード:</strong> {displayCode}
+                </p>
+              )}
             </div>
             <form onSubmit={handleResetPassword}>
               <div className="form-group">

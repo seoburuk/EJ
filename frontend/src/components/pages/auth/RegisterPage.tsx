@@ -19,6 +19,7 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [codeSent, setCodeSent] = useState(false);
+  const [displayCode, setDisplayCode] = useState(''); // テスト用：認証コードを表示
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -57,6 +58,7 @@ const RegisterPage: React.FC = () => {
       if (data.success) {
         alert(data.message);
         setCodeSent(true);
+        setDisplayCode(data.verificationCode || ''); // テスト用：認証コードを保存
         setStep(2);
       } else {
         setError(data.message);
@@ -164,6 +166,11 @@ const RegisterPage: React.FC = () => {
             <p className="description">メールで送信された認証コードを入力し、会員情報を記入してください。</p>
             <div className="info-box">
               <p><strong>メールアドレス:</strong> {formData.email}</p>
+              {displayCode && (
+                <p style={{ color: '#e74c3c', fontWeight: 'bold', marginTop: '10px' }}>
+                  <strong>テスト用認証コード:</strong> {displayCode}
+                </p>
+              )}
             </div>
             <form onSubmit={handleSubmit} className="register-form">
               <div className="form-group">

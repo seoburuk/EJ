@@ -156,11 +156,12 @@ public class AuthController {
             }
 
             // 認証コード生成および送信
-            emailVerificationService.generateVerificationCode(email);
+            String verificationCode = emailVerificationService.generateVerificationCode(email);
 
             return ResponseEntity.ok(createMap(
                 "success", true,
-                "message", "認証コードがメールアドレスに送信されました。（開発環境ではコンソールログを確認してください）"
+                "message", "認証コードがメールアドレスに送信されました。（開発環境ではコンソールログを確認してください）",
+                "verificationCode", verificationCode // テスト用に認証コードを返す
             ));
 
         } catch (Exception e) {
@@ -245,11 +246,12 @@ public class AuthController {
             }
 
             // 認証コード生成および送信
-            emailVerificationService.generateVerificationCode(email);
+            String verificationCode = emailVerificationService.generateVerificationCode(email);
 
             java.util.Map<String, Object> successMap = new java.util.HashMap<>();
             successMap.put("success", true);
             successMap.put("message", "認証コードがメールアドレスに送信されました。（開発環境ではコンソールログを確認してください）");
+            successMap.put("verificationCode", verificationCode); // テスト用に認証コードを返す
             return ResponseEntity.ok(successMap);
 
         } catch (Exception e) {

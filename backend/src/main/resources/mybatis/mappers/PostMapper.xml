@@ -34,7 +34,7 @@
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         LEFT JOIN boards b ON p.board_id = b.id
-        WHERE p.id = #{id} AND p.status = 'ACTIVE'
+        WHERE p.id = #{id}
     </select>
 
     <!-- 掲示板IDによる検索 -->
@@ -45,7 +45,7 @@
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         LEFT JOIN boards b ON p.board_id = b.id
-        WHERE p.board_id = #{boardId} AND p.status = 'ACTIVE'
+        WHERE p.board_id = #{boardId}
         ORDER BY p.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -58,7 +58,6 @@
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         LEFT JOIN boards b ON p.board_id = b.id
-        WHERE p.status = 'ACTIVE'
         ORDER BY p.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -71,7 +70,7 @@
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         LEFT JOIN boards b ON p.board_id = b.id
-        WHERE p.author_id = #{authorId} AND p.status = 'ACTIVE'
+        WHERE p.author_id = #{authorId}
         ORDER BY p.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -85,12 +84,11 @@
         WHERE id = #{id}
     </update>
 
-    <!-- Delete Post (Soft Delete) -->
-    <update id="deletePost">
-        UPDATE posts
-        SET status = 'DELETED'
+    <!-- Delete Post (Hard Delete) -->
+    <delete id="deletePost">
+        DELETE FROM posts
         WHERE id = #{id}
-    </update>
+    </delete>
 
     <!-- Increment View Count -->
     <update id="incrementViewCount">
@@ -136,7 +134,7 @@
     <select id="countByBoardId" resultType="int">
         SELECT COUNT(*)
         FROM posts
-        WHERE board_id = #{boardId} AND status = 'ACTIVE'
+        WHERE board_id = #{boardId}
     </select>
 
     <!-- 投稿検索 -->
@@ -147,8 +145,7 @@
         FROM posts p
         LEFT JOIN users u ON p.author_id = u.id
         LEFT JOIN boards b ON p.board_id = b.id
-        WHERE p.status = 'ACTIVE'
-          AND (p.title LIKE CONCAT('%', #{keyword}, '%')
+        WHERE (p.title LIKE CONCAT('%', #{keyword}, '%')
            OR p.content LIKE CONCAT('%', #{keyword}, '%'))
         ORDER BY p.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
@@ -158,7 +155,6 @@
     <select id="countAllPosts" resultType="int">
         SELECT COUNT(*)
         FROM posts
-        WHERE status = 'ACTIVE'
     </select>
 
 </mapper>

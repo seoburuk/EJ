@@ -21,7 +21,7 @@ services:
     restart: unless-stopped
     # DB가 완전히 준비될 때까지 기다리는 헬스체크 (선택 사항이지만 권장)
     healthcheck:
-      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u$$MARIADB_USER", "-p$$MARIADB_PASSWORD"]
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-uglobalin_user", "-puserpassword"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -49,7 +49,7 @@ services:
       - globalin-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
